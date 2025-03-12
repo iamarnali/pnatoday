@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P&A Today</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f7f3ee;
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+            text-align: center;
+            overflow: hidden; /* Prevents scrolling issues */
+            position: relative;
+        }
+
+        h1 {
+            color: #5a534f;
+            margin-bottom: 100px;
+        }
+
+        .scene {
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            height: 250px;
+        }
+
+        .characters {
+            position: absolute;
+            bottom: 125px;
+            width: 160px;
+            height: 180px;
+            background-image: url('img/ch.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: bottom center;
+            image-rendering: pixelated;
+            animation: jump 1.5s infinite;
+            z-index: 3;
+        }
+
+        .couch {
+            position: absolute;
+            bottom: 0px;
+            width: 350px;
+            height: 300px;
+            background-image: url('img/couch_1.png');
+            background-size: cover;
+            image-rendering: pixelated;
+            z-index: 1;
+        }
+
+        .heart {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-image: url('https://slackmojis.com/emojis/4749-pixel_heart/download');
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0;
+            z-index: 10;
+            top: -70px; /* Moves the heart even higher */
+            left: -25px; /* Centers it above the character */
+            transform: translateX(-50%);
+            animation: heartFade 3s infinite ease-in-out;
+        }
+
+        @keyframes jump {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-50px); }
+        }
+
+        @keyframes heartFade {
+            0% { opacity: 0; transform: translateY(0); }
+            40% { opacity: 1; transform: translateY(-100px); }
+            100% { opacity: 0; transform: translateY(-180px); }
+        }
+        /* Button Styling */
+        .btn {
+            margin-top: 30px;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #afa6a1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #403a37;
+        }
+
+        /* Vacuum Cleaner Styling */
+        .vacuum {
+            position: absolute;
+            bottom: 27%;
+            width: 60px;
+            height: 60px;
+            background-image: url('img/vacuum.png'); 
+            background-size: contain;
+            background-repeat: no-repeat;
+            image-rendering: pixelated;
+            transition: transform 0.3s linear;
+            z-index: 3;
+        }
+
+        /* Water Trail Effect */
+        .water-trail {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background-image: url('img/water.png'); 
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0.5; /* Reduced opacity */
+            transition: opacity 1s ease-out;
+            z-index: 2;
+        }
+
+    </style>
+</head>
+<body>
+    <h1> 
+    </h1>
+    
+    <div class="scene">
+        <div class="characters"></div>
+            <div class="heart"></div>
+        <div class="couch"></div> 
+    </div>
+
+    <!-- Single Button Below the Scene -->
+    <button class="btn" onclick="window.location.href=''">Get started!</button>
+
+    <!-- Moving Vacuum Cleaner -->
+    <div class="vacuum" id="vacuum"></div>
+
+    <script>
+        const vacuum = document.getElementById("vacuum");
+        let x = 50; // Starting X position
+        let direction = 1; // 1 = right, -1 = left
+        let speed = 1.5; // Vacuum movement speed
+        let turning = false; // Prevents instant turns
+
+        function moveVacuum() {
+            if (turning) return; // Skip movement while turning
+
+            const screenWidth = window.innerWidth;
+            const vacuumWidth = vacuum.clientWidth;
+
+            // Move vacuum by adjusting X position
+            x += speed * direction;
+            vacuum.style.left = `${x}px`;
+
+            // Create water trail
+            createWaterTrail(x + 5); // Moved trail closer by reducing left offset
+
+            // Check if it hit the screen edges
+            if (x <= 0 || x + vacuumWidth >= screenWidth) {
+                turning = true; // Prevents instant flip
+                setTimeout(() => {
+                    direction *= -1; // Change direction after delay
+                    vacuum.style.transform = `scaleX(${direction})`; // Flip vacuum image
+                    turning = false; // Allow movement again
+                }, 500); // Delay before turning (adjust for smoother effect)
+            }
+        }
+
+        function createWaterTrail(x) {
+            const water = document.createElement("div");
+            water.className = "water-trail";
+            water.style.left = `${x+5}px`; // Slight offset so it's behind the vacuum
+            water.style.bottom = "30%"; // Adjusted to match vacuum height
+
+            document.body.appendChild(water);
+
+            // Gradually fade out and remove water drop
+            setTimeout(() => {
+                water.style.opacity = "0.2"; // Lower opacity before full disappearance
+                setTimeout(() => water.remove(), 1000);
+            }, 500);
+        }
+
+        // Start movement loop
+        vacuum.style.position = "absolute";
+        vacuum.style.left = `${x}px`;
+        setInterval(moveVacuum, 20); // Smooth animation every 20ms
+    </script>
+</body>
+</html>

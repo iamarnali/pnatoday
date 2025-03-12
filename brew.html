@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>First, coffee!</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f7f3ee;
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        h1 {
+            color: #5a534f;
+            margin-bottom: 20px;
+        }
+
+        .game-container {
+            position: relative;
+            width: 500px;
+            height: 300px;
+            background-color: #f7f3ee;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            border-radius: 10px;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0);
+            padding: 20px;
+        }
+
+        .bean-container, .ground-coffee-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .bean-bag, .ground-coffee, .grinder, .french-press, .coffee-cup, .patrick, .arnali, .speech-bubble {
+            background-size: contain;
+            background-repeat: no-repeat;
+            cursor: pointer;
+        }
+
+        .bean-bag, .ground-coffee {
+            width: 50px;
+            height: 30px;
+            margin-top: 20px;
+        }
+
+        .bean-bag {
+            background-image: url('img/beans.png');
+        }
+
+        .grinder {
+            width: 160px;
+            height: 180px;
+            background-image: url('img/grinder.png');
+            margin-top: 80px;
+        }
+
+        .ground-coffee {
+            background-image: url('img/ground_coffee.png');
+            width: 90px;
+            height: 80px;
+            display: none;
+        }
+
+        .french-press {
+            width: 150px;
+            height: 150px;
+            background-image: url('img/french_press.png');
+            display: none;
+            margin-top: 20px;
+        }
+
+
+        .patrick, .arnali {
+            width: 150px;
+            height: 140px;
+            display: none;
+            position: absolute;
+            bottom: 50px;
+        }
+
+        .patrick {
+            background-image: url('img/patrick_2.png');
+            left: 40px;
+        }
+
+        .arnali {
+            background-image: url('img/arnali.png');
+            right: 0px;
+        }
+
+        .speech-bubble {
+            width: 220px;
+            background: white;
+            border: 1px solid #7a7a7a;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 14px;
+            font-family: 'Courier New', Courier, monospace;
+            color: #5a534f;
+            display: none;
+            position: absolute;
+        }
+
+        #patrickSpeech {
+            top: 50px;
+            left: 20px;
+        }
+
+        #arnaliSpeech {
+            top: 80px;
+            right: 20px;
+        }
+
+        .message {
+            margin-top: 20px;
+            color: #5a534f;
+        }
+
+        .timer, .score, .quality {
+            font-size: 18px;
+            margin-top: 10px;
+            color: #5a534f;
+        }
+    </style>
+</head>
+<body>
+    <h1>Get Brewing!☕</h1>
+    <div class="timer" id="timer">Time: 10s</div>
+    <div class="score" id="score">Score: 0</div>
+    <div class="quality" id="quality">Brew Strength: 100%</div>
+    
+    <div class="game-container" id="gameContainer">
+        <div class="bean-container" id="beanContainer"></div>
+        <div class="grinder" id="grinder"></div>
+        <div class="ground-coffee-container" id="groundCoffeeContainer"></div>
+        <div class="french-press" id="frenchPress"></div>
+        <div class="coffee-cup" id="coffeeCup"></div>
+        <div class="patrick" id="patrick"></div>
+        <div class="arnali" id="arnali"></div>
+        <div class="speech-bubble" id="patrickSpeech">That's what I call the perfect brew.</div>
+        <div class="speech-bubble" id="arnaliSpeech">I would agree to that!</div>
+    </div>
+
+    <p class="message" id="message">Drag the beans to the grinder!</p>
+
+    <!-- Back to Home Button -->
+    <button onclick="window.location.href='main.html'" style="
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #afa6a1;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-family: 'Courier New', Courier, monospace;
+    ">Back to Home</button>
+
+    <script>
+        let timeLeft = 10;
+        let score = 0;
+        let coffeeQuality = 100;
+        let beansAdded = 0;
+        let coffeeAdded = 0;
+        let gameActive = true;
+        let taskCompleted = false;
+
+        function updateUI() {
+            document.getElementById("timer").textContent = `Time: ${timeLeft}s`;
+            document.getElementById("score").textContent = `Score: ${score}`;
+            document.getElementById("quality").textContent = `Brew Strength: ${coffeeQuality}%`;
+        }
+
+        // Start Timer
+        const timerInterval = setInterval(() => {
+            if (timeLeft > 0 && gameActive) {
+                timeLeft--;
+                coffeeQuality = Math.max(0, coffeeQuality - 5);
+                updateUI();
+            } else {
+                clearInterval(timerInterval); // Stops timer when time runs out
+                if (!taskCompleted) {
+                    gameActive = false;
+                    document.getElementById("message").textContent = "Time's up! The grinder broke down! ☹️";
+                }
+            }
+        }, 1000);
+
+
+        const beanContainer = document.getElementById("beanContainer");
+        const groundCoffeeContainer = document.getElementById("groundCoffeeContainer");
+        const grinder = document.getElementById("grinder");
+        const frenchPress = document.getElementById("frenchPress");
+
+        grinder.addEventListener("dragover", (event) => event.preventDefault());
+        grinder.addEventListener("drop", function(event) {
+            event.preventDefault();
+            let coffeeType = event.dataTransfer.getData("coffeeType");
+            if (coffeeType === "bean") {
+                beansAdded++;
+                document.getElementById(`bean${beansAdded}`).style.display = "none"; // Hide bean
+                if (beansAdded === 5) {
+                    grinder.style.display = "none";
+                    document.getElementById("message").textContent = "Now, drag the ground coffee portions to the French press!";
+                    
+                    // Show ground coffee
+                    for (let i = 0; i < 3; i++) {
+                        let groundCoffee = document.createElement("div");
+                        groundCoffee.className = "ground-coffee";
+                        groundCoffee.id = `ground${i + 1}`;
+                        groundCoffee.draggable = true;
+                        groundCoffee.style.display = "block";
+
+                        groundCoffee.addEventListener("dragstart", function(event) {
+                            event.dataTransfer.setData("coffeeType", "ground");
+                        });
+
+                        groundCoffeeContainer.appendChild(groundCoffee);
+                    }
+                    frenchPress.style.display = "block";
+                }
+            }
+        });
+
+
+        frenchPress.addEventListener("dragover", (event) => event.preventDefault());
+        frenchPress.addEventListener("drop", function(event) {
+            event.preventDefault();
+            let coffeeType = event.dataTransfer.getData("coffeeType");
+            if (coffeeType === "ground") {
+                coffeeAdded++;
+                document.getElementById(`ground${coffeeAdded}`).style.display = "none"; // Hide ground coffee
+                if (coffeeAdded === 3) {
+                    clearInterval(timerInterval); // STOP THE TIMER
+                    taskCompleted = true; // Mark game as completed
+                    frenchPress.style.display = "none"; 
+                    document.getElementById("coffeeCup").style.display = "block"; 
+
+                    // Show success message, characters & speech bubbles
+                    setTimeout(() => {
+                        document.getElementById("message").textContent = "";
+                        document.getElementById("patrick").style.display = "block";
+                        document.getElementById("patrickSpeech").style.display = "block";
+                        setTimeout(() => {
+                            document.getElementById("arnali").style.display = "block";
+                            document.getElementById("arnaliSpeech").style.display = "block";
+                        }, 1500);
+                    }, 1000);
+                }
+            }
+        });
+
+        for (let i = 0; i < 5; i++) {
+            let bean = document.createElement("div");
+            bean.className = "bean-bag";
+            bean.id = `bean${i + 1}`;
+            bean.draggable = true;
+            bean.addEventListener("dragstart", function(event) {
+                event.dataTransfer.setData("coffeeType", "bean");
+            });
+            beanContainer.appendChild(bean);
+        }
+    </script>
+</body>
+</html>
